@@ -33,6 +33,22 @@ def show_menu():
     return option
 
 
+def get_record():
+    print("")
+    first = input("Enter first name > ")
+    last = input("Enter last name > ")
+
+    try:
+        doc = coll.find_one({"first": first.lower(), "last": last.lower()})
+    except:
+        print("Error connecting database (from get_record try)")
+
+    if not doc:
+        print("")
+        print("Error! No results found.")
+
+    return doc
+    
 #  This is the first loop to make  sure it work
 # def main_loop():
 #     while True:
@@ -80,7 +96,61 @@ def add_record():
         print("")
         print("Document inserted")
     except:
-            print("Error accessing the database")
+        print("Error accessing the database")
+
+
+# this block goes with the get_record (define doc as well)
+def find_record():
+    doc = get_record()
+    if doc:
+        print("")
+        for k, v in doc.items():
+            if k != "_id":
+                print(k.capitalize() + ": " + v.capitalize())
+
+
+def edit_record():
+    doc = get_record()
+    if doc:
+        update_doc = {}
+        print("")
+        for k, v in doc.items():
+            if k != "_id":  # do not update the key id
+                update_doc[k] = input(k.capitalize() + " [" + v + "] > ")
+
+                # if nothing to update, keep the same value
+                if update_doc[k] == "":
+                    update_doc[k] = v
+
+        # check if everything worked properly
+        try:
+            coll.update_one(doc, {"$set": update_doc})
+            print("")
+            print("Document updated")
+        except:
+            print("Error accessing the database. (From Edit_record)")
+
+
+def delete_record():
+    doc = get_record()
+    if doc:
+        print("")
+        for k, v in doc.items():
+            if k != "_id":
+                print(k.capitalize() + ": " + v.capitalize())
+
+        print("")
+        confirmation = input("Is this the document you want to delete:\nY or N > ")
+        print("")
+
+        if confirmation.lower() == "y":
+            try:
+                coll.remove(doc)
+                print("Document deleted!")
+            except:
+                print("Error accessing the database. from delete_record()")
+        else:
+            print("Document not deleted")
 
 
 def main_loop():
@@ -89,11 +159,11 @@ def main_loop():
         if option == "1":
             add_record()
         elif option == "2":
-            print("You have selected option 2")
+            find_record()
         elif option == "3":
-            print("You have selected option 3")
+            edit_record()
         elif option == "4":
-            print("You have selected option 4")
+            delete_record()
         elif option == "5":
             conn.close()
             break
