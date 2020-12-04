@@ -125,6 +125,8 @@ def edit_record():
         # check if everything worked properly
         try:
             coll.update_one(doc, {"$set": update_doc})
+            # we should be able to use doc instead...
+            # ...of $set (not sure what $set is5)
             print("")
             print("Document updated")
         except:
